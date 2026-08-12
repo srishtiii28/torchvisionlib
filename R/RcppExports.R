@@ -5,6 +5,10 @@ rcpp_vision_ops_nms <- function(dets, scores, iou_threshold) {
     .Call('_torchvisionlib_rcpp_vision_ops_nms', PACKAGE = 'torchvisionlib', dets, scores, iou_threshold)
 }
 
+rcpp_vision_ops_ms_deform_attn <- function(value, spatial_shapes, level_start_index, sampling_loc, attn_weight, im2col_step) {
+    .Call('_torchvisionlib_rcpp_vision_ops_ms_deform_attn', PACKAGE = 'torchvisionlib', value, spatial_shapes, level_start_index, sampling_loc, attn_weight, im2col_step)
+}
+
 rcpp_vision_ops_box_iou_rotated <- function(boxes1, boxes2) {
     .Call('_torchvisionlib_rcpp_vision_ops_box_iou_rotated', PACKAGE = 'torchvisionlib', boxes1, boxes2)
 }

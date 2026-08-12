@@ -21,6 +21,13 @@ TORCHVISIONLIB_API void* _vision_ops_nms (void* dets, void* scores, double iou_t
   } TORCHVISIONLIB_HANDLE_EXCEPTION
   return (void*) NULL;
 }
+torch::Tensor vision_ops_ms_deform_attn (torch::Tensor value, torch::Tensor spatial_shapes, torch::Tensor level_start_index, torch::Tensor sampling_loc, torch::Tensor attn_weight, std::int64_t im2col_step);
+TORCHVISIONLIB_API void* _vision_ops_ms_deform_attn (void* value, void* spatial_shapes, void* level_start_index, void* sampling_loc, void* attn_weight, std::int64_t im2col_step) {
+  try {
+    return  make_raw::Tensor(vision_ops_ms_deform_attn(from_raw::Tensor(value), from_raw::Tensor(spatial_shapes), from_raw::Tensor(level_start_index), from_raw::Tensor(sampling_loc), from_raw::Tensor(attn_weight), im2col_step));
+  } TORCHVISIONLIB_HANDLE_EXCEPTION
+  return (void*) NULL;
+}
 torch::Tensor vision_ops_box_iou_rotated (torch::Tensor boxes1, torch::Tensor boxes2);
 TORCHVISIONLIB_API void* _vision_ops_box_iou_rotated (void* boxes1, void* boxes2) {
   try {

@@ -1,5 +1,5 @@
-project(torchvisionlib)
 cmake_minimum_required(VERSION 3.21)
+project(torchvisionlib)
 
 # accommodate differing conventions
 include(GNUInstallDirs)
@@ -27,7 +27,7 @@ else()
   SET(TORCH_INSTALL_SCRIPT "https://raw.githubusercontent.com/mlverse/torch/main/R/install.R")
   SET(TORCH_DESCRIPTION "https://raw.githubusercontent.com/mlverse/torch/main/DESCRIPTION")
   execute_process (
-    COMMAND Rscript -e "cat(desc::desc(text=readLines('${TORCH_DESCRIPTION}'))$get('Version'))"
+    COMMAND Rscript -e "cat(desc::desc(text=readLines('${TORCH_DESCRIPTION}'))\$get('Version'))"
     OUTPUT_VARIABLE TORCH_R_VERSION
   )
   message(STATUS "TORCH_R_VERSION: ${TORCH_R_VERSION}")
@@ -58,20 +58,20 @@ if(WIN32)
   SET(COMMON_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR})
   ExternalProject_Add(zlib
     GIT_REPOSITORY https://github.com/madler/zlib.git
-    GIT_TAG v1.2.12
+    GIT_TAG v1.3.2
     PREFIX "${CMAKE_CURRENT_BINARY_DIR}/zlib"
     CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DCMAKE_ASM_COMPILER=MSVC -DCMAKE_ASM_NASM_COMPILER=MSVC
   )
   ExternalProject_Add(libpng
     GIT_REPOSITORY https://github.com/glennrp/libpng
-    GIT_TAG v1.6.37
+    GIT_TAG v1.6.55
     DEPENDS zlib
     PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libpng"
     CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DCMAKE_IGNORE_PATH=C:/rtools44/x86_64-w64-mingw32.static.posix/include -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH};${CURRENT_BINARY_DIR}/lib
   )
   ExternalProject_Add(libjpeg
     GIT_REPOSITORY https://github.com/libjpeg-turbo/libjpeg-turbo
-    GIT_TAG 2.1.2
+    GIT_TAG 3.1.3
     PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libjpeg"
     CMAKE_ARGS ${COMMON_CMAKE_ARGS} -DWITH_JPEG8=0 -DWITH_JPEG7=0 -DENABLE_SHARED=0 -DWITH_TURBOJPEG=0 -DCMAKE_IGNORE_PATH=C:/rtools44/x86_64-w64-mingw32.static.posix/include
   )
@@ -140,6 +140,17 @@ set(TORCHVISION_SRC src/torchvisionlib.cpp src/ops.cpp src/exports.cpp src/torch
     ops/box_iou_rotated/box_iou_rotated.cpp
     ops/box_iou_rotated/cpu/box_iou_rotated_kernel.cpp)
 
+# Multi-scale deformable attention op. Host/registration code always builds;
+# the CUDA kernel is added only when CUDA is enabled.
+list(APPEND TORCHVISION_SRC
+    ops/ms_deform_attn/ms_deform_attn.cpp
+    ops/ms_deform_attn/cpu/ms_deform_attn_kernel.cpp
+    ops/ms_deform_attn/autograd/ms_deform_attn_kernel.cpp
+)
+if (DEFINED ENV{CUDA} AND NOT '$ENV{CUDA}' STREQUAL '')
+  list(APPEND TORCHVISION_SRC ops/ms_deform_attn/cuda/ms_deform_attn_kernel.cu)
+endif()
+
 add_library(torchvisionlib SHARED ${TORCHVISION_SRC})
 add_library(torchvisionlib::library ALIAS torchvisionlib)
 
@@ -170,6 +181,15 @@ add_dependencies(torchvisionlib torchvisionlib_export)
 
 set_property(TARGET torchvisionlib PROPERTY CXX_STANDARD 17)
 
+# CUDA build settings for the ms_deform_attn kernel (CUDA-enabled builds only).
+if (DEFINED ENV{CUDA} AND NOT '$ENV{CUDA}' STREQUAL '')
+  target_compile_definitions(torchvisionlib PRIVATE WITH_CUDA)
+  set_property(TARGET torchvisionlib PROPERTY CUDA_STANDARD 17)
+  if (NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set_property(TARGET torchvisionlib PROPERTY CUDA_ARCHITECTURES OFF)
+  endif()
+endif()
+
 target_link_libraries(torchvisionlib "${TORCH_LIBRARIES}")
 target_link_libraries(torchvisionlib TorchVision)
 
@@ -187,7 +207,7 @@ add_custom_command(TARGET torchvisionlib POST_BUILD
 # binaries bundles and upload them to the GitHub Releases page.
 set(CPACK_GENERATOR ZIP)
 execute_process (
-    COMMAND Rscript -e "cat(desc::description$new(file = '../../DESCRIPTION')$get('Version'))"
+    COMMAND Rscript -e "cat(desc::description\$new(file = '../../DESCRIPTION')\$get('Version'))"
     OUTPUT_VARIABLE CPACK_PACKAGE_VERSION
 )
 

@@ -8,6 +8,10 @@ torch::Tensor rcpp_vision_ops_nms (torch::Tensor dets, torch::Tensor scores, dou
   return  vision_ops_nms(dets.get(), scores.get(), iou_threshold);
 }
 // [[Rcpp::export]]
+torch::Tensor rcpp_vision_ops_ms_deform_attn (torch::Tensor value, torch::Tensor spatial_shapes, torch::Tensor level_start_index, torch::Tensor sampling_loc, torch::Tensor attn_weight, std::int64_t im2col_step) {
+  return  vision_ops_ms_deform_attn(value.get(), spatial_shapes.get(), level_start_index.get(), sampling_loc.get(), attn_weight.get(), im2col_step);
+}
+// [[Rcpp::export]]
 torch::Tensor rcpp_vision_ops_box_iou_rotated (torch::Tensor boxes1, torch::Tensor boxes2) {
   return  vision_ops_box_iou_rotated(boxes1.get(), boxes2.get());
 }

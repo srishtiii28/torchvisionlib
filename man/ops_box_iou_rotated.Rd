@@ -35,6 +35,7 @@ if (torchvisionlib_is_installed()) {
 }
 \seealso{
 Other ops:
+\code{\link[=ops_ms_deform_attn]{ops_ms_deform_attn()}},
 \code{\link[=ops_nms]{ops_nms()}}
 }
 \concept{ops}

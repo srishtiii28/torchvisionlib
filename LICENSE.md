@@ -20,7 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
+## Third-party code
+
+The multi-scale deformable attention kernels under
+`csrc/ops/ms_deform_attn/cuda/` are vendored from Deformable-DETR
+(https://github.com/fundamentalvision/Deformable-DETR), Copyright (c) 2020
+SenseTime, licensed under the Apache License, Version 2.0. The original license
+headers are retained in those files.
 
 The rotated box IoU kernel under `csrc/ops/box_iou_rotated/` is adapted from
 Detectron2 (https://github.com/facebookresearch/detectron2), Copyright (c)
